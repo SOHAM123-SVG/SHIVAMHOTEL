@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hotel Food Ordering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== Design tokens: edit colours/fonts here ===== */
+:root{--g:#03472c;--g2:#0E2A1F;--a:#E39B1B;--bg:#F5F7F2;--card:#fff;--ink:#17211B;--mut:#5B675F;--line:#DDE3DA;--red:#C0392B;--ok:#1E8E4E;
+--r:14px;--sh:0 6px 24px rgba(22,64,47,.10);--h:'Bricolage Grotesque',system-ui,sans-serif;--b:'Public Sans',system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;font:16px/1.55 var(--b);color:var(--ink);background:var(--bg)}
+h1,h2,h3{font-family:var(--h);line-height:1.15;margin:0}h2{font-size:clamp(1.6rem,4vw,2.2rem);margin-bottom:6px}
+img{max-width:100%}a{color:inherit}:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+.wrap{max-width:1120px;margin:auto;padding:0 18px}section{padding:44px 0}.sub{color:var(--mut);margin:0 0 20px}
+.btn{font:600 1rem var(--b);min-height:44px;padding:0 20px;border-radius:999px;border:2px solid var(--g);background:var(--g);color:#fff;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.97)}.btn.alt{background:transparent;color:var(--g)}.btn.gold{background:var(--a);border-color:var(--a);color:#1b1300}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}.btn.sm{min-height:36px;padding:0 14px;font-size:.9rem}.btn.full{width:100%}
+nav{position:sticky;top:0;z-index:30;background:var(--g2);color:#fff}nav .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.logo{font:800 1.25rem var(--h);text-decoration:none;margin-right:auto}.links{display:flex;gap:20px}.links a{text-decoration:none;opacity:.85}.links a:hover{opacity:1}
+.ib{background:none;border:0;color:#fff;font-size:1.4rem;cursor:pointer;min-width:44px;min-height:44px;position:relative}
+.badge{position:absolute;top:2px;right:0;background:var(--a);color:#000;border-radius:99px;font:700 .7rem var(--b);padding:1px 6px}.bump{animation:bump .3s}@keyframes bump{50%{transform:scale(1.35)}}
+#burger{display:none}
+.hero{background:linear-gradient(135deg,var(--g2),var(--g));color:#fff;padding:64px 0}.hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,7vw,4.4rem);font-weight:800}.hero p{font-size:1.15rem;opacity:.9;max-width:34ch}.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.hero .btn.alt{color:#fff;border-color:#fff}.plate{font-size:clamp(7rem,22vw,12rem);text-align:center;filter:drop-shadow(0 20px 30px #0006)}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:-30px;position:relative}
+.box{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px;border:1px solid var(--line)}.box b{display:block}
+.st{font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block}.st.o{background:#DFF3E7;color:#126B38}.st.c{background:#FBE0DC;color:#8E2418}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;cursor:pointer}.card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.pic{height:130px;display:grid;place-items:center;font-size:4rem;background:linear-gradient(135deg,#EDF2E8,#F9E9C8)}.pic img{width:100%;height:100%;object-fit:cover}
+.cb{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}.cb p{margin:0;color:var(--mut);font-size:.9rem;flex:1}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.vd{width:16px;height:16px;border:2px solid var(--ok);display:inline-grid;place-items:center;border-radius:3px;flex:none}.vd::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}.vd.n{border-color:var(--red)}.vd.n::after{background:var(--red)}
+.tag{font-size:.75rem;padding:2px 8px;border-radius:99px;background:#FFF1D1;color:#7A4D00}.tag.s{background:#FBE0DC;color:#8E2418}.star{color:#B87800;font-weight:600}.price{font-weight:700}
+.bar{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:10px;margin-bottom:12px}.bar>*{min-height:44px}
+input,select,textarea{font:inherit;padding:10px 12px;border:1px solid #B9C3B8;border-radius:10px;background:#fff;width:100%}label{font-weight:600;font-size:.9rem;display:block;margin-bottom:4px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 12px;position:sticky;top:60px;background:var(--bg);z-index:5}.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;cursor:pointer;font:inherit;min-height:40px}.chip.on,.chip:hover{background:var(--g);color:#fff}
+.tg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.tg button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font:inherit;cursor:pointer;min-height:40px}.tg button.on{background:var(--a);border-color:var(--a)}
+.car{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}.rv{scroll-snap-align:start;flex:0 0 min(320px,85%)}
+.av{width:40px;height:40px;border-radius:50%;background:var(--g);color:#fff;display:grid;place-items:center;font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}.dark{background:var(--g2);color:#fff}.dark a{opacity:.85}
+footer{background:#08150F;color:#cfd8d2;padding:36px 0 90px}footer a{display:block;margin:4px 0;text-decoration:none}.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+/* modal + drawer */
+dialog{border:0;border-radius:18px;padding:0;width:min(520px,94vw);max-height:92vh;box-shadow:0 20px 60px #0008}dialog::backdrop{background:#0009}dialog[open]{animation:pop .22s}@keyframes pop{from{opacity:0;transform:translateY(20px)}}
+.mb{padding:20px;display:grid;gap:14px}.opt{display:flex;gap:8px;flex-wrap:wrap}.opt label{font-weight:500;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;margin:0;display:flex;gap:6px;align-items:center}.opt input{width:auto}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;background:#fff}.qty button{width:40px;height:40px;border:0;background:none;font-size:1.2rem;cursor:pointer}.qty span{min-width:26px;text-align:center;font-weight:600}
+#drawer{position:fixed;inset:0 0 0 auto;width:min(420px,100%);background:#fff;z-index:50;transform:translateX(105%);transition:transform .3s;display:flex;flex-direction:column;box-shadow:-10px 0 40px #0004}#drawer.on{transform:none}
+#drawer header,.ci{padding:14px 18px;border-bottom:1px solid var(--line)}#drawer header{display:flex;justify-content:space-between;align-items:center}.cl{flex:1;overflow:auto}.cf{padding:16px 18px;border-top:1px solid var(--line)}
+.ci{display:grid;grid-template-columns:48px 1fr auto;gap:10px}.ci .pic{height:48px;font-size:1.6rem;border-radius:10px}.small{font-size:.85rem;color:var(--mut)}.tot{display:flex;justify-content:space-between;padding:3px 0}.tot.g{font:700 1.15rem var(--h);border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
+.lk{background:none;border:0;color:var(--g);text-decoration:underline;cursor:pointer;font:inherit;padding:4px}
+.fx{position:fixed;inset:0;background:#0007;z-index:40;display:none}.fx.on{display:block}
+.view{display:none}.view.on{display:block}.co{display:grid;grid-template-columns:1.3fr .8fr;gap:22px;align-items:start}.co aside{position:sticky;top:76px}.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+.err{color:var(--red);font-size:.85rem;min-height:1em}.bad{border-color:var(--red)}.alert{background:#FBE0DC;color:#8E2418;padding:12px;border-radius:10px;margin:10px 0}
+.steps{display:flex;flex-wrap:wrap;gap:0;margin:20px 0}.step{flex:1;min-width:90px;text-align:center;font-size:.8rem;position:relative;padding-top:34px;color:var(--mut)}
+.step::before{content:"";position:absolute;top:8px;left:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--line);transform:translateX(-50%);z-index:1;transition:.4s}
+.step::after{content:"";position:absolute;top:15px;left:-50%;width:100%;height:4px;background:var(--line)}.step:first-child::after{display:none}
+.step.d{color:var(--ink)}.step.d::before,.step.d::after{background:var(--g);border-color:var(--g)}.step.now::before{background:var(--a);border-color:var(--a);animation:pulse 1.4s infinite}@keyframes pulse{50%{box-shadow:0 0 0 8px #E39B1B44}}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:var(--g2);color:#fff;padding:10px 18px;border-radius:99px;z-index:60;opacity:0;transition:.3s;pointer-events:none}.toast.on{opacity:1}
+.mcall{display:none;position:fixed;bottom:0;left:0;right:0;z-index:25;background:var(--g2);padding:8px 12px;gap:8px}.mcall .btn{flex:1}
+@media(max-width:820px){#burger{display:block}.links{display:none;position:absolute;top:60px;left:0;right:0;background:var(--g2);flex-direction:column;padding:12px 18px;gap:0}.links.on{display:flex}.links a{padding:12px 0}
+.hero .wrap,.co,.two{grid-template-columns:1fr}.plate{display:none}.bar{grid-template-columns:1fr 1fr}.bar>:first-child{grid-column:1/-1}.co aside{position:static}.fgrid{grid-template-columns:1fr}.mcall{display:flex}.grid{grid-template-columns:1fr 1fr;gap:10px}.pic{height:100px}.cb{padding:10px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head><body>
+<nav><div class="wrap"><a class="logo" href="#" id="logo"></a>
+<div class="links" id="links"><a href="#menu">Menu</a><a href="#about">About</a><a href="#contact">Contact</a><a href="#track">Track order</a></div>
+<button class="ib" id="cartBtn" aria-label="Open cart">🛒<span class="badge" id="cnt">0</span></button>
+<button class="ib" id="burger" aria-label="Toggle menu" aria-expanded="false">☰</button></div></nav>
+
+<main id="v-main" class="view on">
+<header class="hero"><div class="wrap"><div><h1 class="cfg-name"></h1><p>Delicious Food, Delivered Fresh.</p>
+<div class="cta"><a class="btn gold" href="#menu">Order Now</a><a class="btn alt" href="#menu">View Menu</a></div></div><div class="plate" aria-hidden="true">🍛</div></div></header>
+<div class="wrap info" id="info"></div>
+<section><div class="wrap"><h2>Popular right now</h2><p class="sub">Most-ordered dishes. Tap a dish to customise it.</p><div class="grid" id="feat"></div></div></section>
+<section id="reviews" style="background:#fff"><div class="wrap"><div class="row"><div><h2>What guests say</h2><p class="sub" id="avg"></p></div><div><button class="btn alt sm" id="rp" aria-label="Previous review">‹</button> <button class="btn alt sm" id="rn" aria-label="Next review">›</button></div></div><div class="car" id="car"></div></div></section>
+<section id="menu"><div class="wrap"><h2>Our menu</h2><p class="sub">Fresh, made to order.</p>
+<div class="bar"><input id="q" type="search" placeholder="Search dishes, ingredients, categories" aria-label="Search menu">
+<select id="cat" aria-label="Category"></select><select id="sort" aria-label="Sort"><option value="">Sort: Recommended</option><option value="pa">Price: Low to High</option><option value="pd">Price: High to Low</option><option value="r">Highest Rated</option><option value="pop">Most Popular</option></select>
+<select id="diet" aria-label="Diet"><option value="">Veg &amp; Indian</option><option value="v">Vegetarian only</option><option value="n"></option></select></div>
+<div class="tg"><button id="fsp" aria-pressed="false">🌶 Spicy</button><button id="fpo" aria-pressed="false">★ Popular</button><button class="lk" id="clr">Clear filters</button></div>
+<div class="chips" id="chips"></div><div id="menuBody"><p>Loading menu…</p></div></div></section>
+<section id="about" style="background:#fff"><div class="wrap two"><div><h2>Our story</h2><p id="story"></p></div><div class="grid" id="facts" style="grid-template-columns:1fr 1fr"></div></div></section>
+<section id="contact" class="dark"><div class="wrap two"><div><h2 class="cfg-name"></h2><div id="ct"></div></div><div><h3>Opening hours</h3><p id="hrs"></p><div class="cta"><a class="btn gold" id="mapB" target="_blank" rel="noopener">Open in Google Maps</a></div><p id="soc"></p></div></div></section>
+<footer><div class="wrap fg"><div><h3 class="cfg-name" style="color:#fff"></h3><p>Delicious Food, Delivered Fresh.</p></div><div><b>Quick links</b><a href="#menu">Menu</a><a href="#about">About</a><a href="#contact">Contact</a></div><div><b>Legal</b><a href="#" onclick="alert('Add your Terms &amp; Conditions here.');return false">Terms &amp; Conditions</a><a href="#" onclick="alert('Add your Privacy Policy here.');return false">Privacy Policy</a></div><div><b>Follow</b><a href="#" target="_blank">Instagram</a><a href="#" target="_blank">Facebook</a></div></div><div class="wrap small" style="margin-top:20px">© <span id="yr"></span> <span class="cfg-name"></span></div></footer>
+</main>
+
+<main id="v-checkout" class="view"><div class="wrap" style="padding:30px 18px"><a href="#menu" class="lk">← Back to menu</a><h2>Checkout</h2><div id="coBody"></div></div></main>
+<main id="v-done" class="view"><div class="wrap" style="padding:30px 18px;max-width:720px" id="doneBody"></div></main>
+<main id="v-track" class="view"><div class="wrap" style="padding:30px 18px;max-width:760px"><h2>Track your order</h2>
+<div class="row"><input id="tid" placeholder="Order ID e.g. HTL-20261007-001" aria-label="Order ID"><button class="btn" id="tgo">Track</button></div><div id="tbody"></div></div></main>
+
+<div class="mcall"><a class="btn gold" id="callB">📞 Call now</a><button class="btn alt" style="color:#fff;border-color:#fff" onclick="openCart()">View cart</button></div>
+<div class="fx" id="fx"></div>
+<aside id="drawer" aria-label="Cart"><header><h3>Your order</h3><button class="ib" style="color:#000" id="cx" aria-label="Close cart">✕</button></header><div class="cl" id="cl"></div><div class="cf" id="cf"></div></aside>
+<dialog id="dlg"></dialog><div class="toast" id="toast" role="status"></div>
+
+<script> for making changes in the text and images 
+/* ============ 1. CONFIG — edit this block for your restaurant ============ */
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyg50MHmjFkWC1G_wOXr8oTtLbVuI2SDoBrwf6J2dNP5s1cmDPoZDYd8ZJzMfjqL_LHYQ/exec";
+const CONFIG = {
+  name:"Shivam Hotel", phone:"+9321540173", email:"sohamrs30@gmail.com",
+  address:"Shop No. 1/2/3, Jyotsna Co-operative Housing Society, Opposite Thane Railway Station, Rambhau Mhalgi Road, Thane East, Thane, Maharashtra 400603", maps:"https://maps.google.com/?q=Thane+Station+Road",
+  open:"07:00", close:"12:00", taxRate:0.05, deliveryCharge:40, freeDeliveryAbove:500, minDelivery:150,
+  eta:{Delivery:"30–45 minutes",Takeaway:"20–25 minutes","Dine-in":"15–20 minutes"},
+  story:"Born in a family kitchen and grown into a neighbourhood favourite, we cook every dish to order using fresh produce delivered each morning. No shortcuts, no reheated gravies.",
+  facts:[["15+","Years of experience"],["100%","Fresh ingredients daily"],["12","Chefs in our kitchen"],["4.0★","Average guest rating"]],
+  // pct = percent off, flat = rupees off, min = minimum subtotal, max = cap on percent discounts
+  coupons:{WELCOME10:{pct:10,min:0,max:200},FIRSTORDER:{flat:100,min:300},FOOD20:{pct:20,min:500,max:150}},
+  reviews:[["Aarti S.",5,"The paneer biryani is the best in Thane. Arrived hot and on time."],["Rohan M.",4,"Great Pulao, generous portions. Naans could be softer."],["Sneha P.",5,"Ordered Jain preparation and they got it exactly right."],["Imran K.",5,"Fast delivery and the Hakka noodles were perfectly spiced."]]
+};
+const ADDONS={cheese:["Extra cheese",40],veg:["Extra vegetables",30],sauce:["Extra sauce",20],paneer:["Extra paneer",60],raita:["Extra raita",25],topping:["Extra toppings",50]};
+const SPICE=["Mild","Medium","Spicy","Extra Spicy"];
+/* ============ 2. MENU DATA (keep ids/prices identical to Code.gs) ============
+ id, n=name, c=category, d=description, p=price ₹, v=veg(1)/non-veg(0), r=rating, pop=popular, sp=spicy, e=emoji, img=optional image URL,
+ lg=extra ₹ for Large (omit = no size choice), ad=add-on keys, oos=1 out of stock */
+const CATS=["Starters","Main Course","Indian","Chinese","Fast Food","Rice & Biryani","Breads","Desserts","Beverages"];
+const MENU=[
+{id:"s1",n:"Paneer Tikka",c:"Starters",d:"Char-grilled paneer, peppers and mint chutney.",p:240,v:1,r:4.6,pop:1,sp:1,e:"🍢",lg:80,ad:["paneer","sauce"]},
+{id:"s2",n:"Pot Rice",c:"Main course",d:"Fragrant rice cooked with vegetables and spices",p:260,v:0,r:4.5,pop:1,sp:1,e:"🍛",lg:90,ad:["sauce"]},
+{id:"m1",n:"Dal Makhani",c:"Main Course",d:"Black lentils slow-cooked overnight with butter and cream.",p:220,v:1,r:4.6,pop:1,sp:0,e:"🥘",lg:70,ad:["paneer"]},
+{id:"m2",n:"Veg Pulao",c:"Main Course",d:"Aromatic basmati rice with mixed vegetables",p:320,v:0,r:4.8,pop:1,sp:0,e:"🍛",lg:100,ad:["sauce"]},
+{id:"i1",n:"Paneer Butter Masala",c:"Indian",d:"Paneer cubes in a rich, mildly sweet tomato gravy.",p:260,v:1,r:4.5,pop:1,sp:0,e:"🧀",lg:80,ad:["paneer","cheese"]},
+{id:"i2",n:"Paneer Chilly",c:"starters",d:"Crispy paneer tossed in a spicy, tangy Indo-Chinese sauce.",p:380,v:0,r:4.7,pop:0,sp:1,e:"🍢",lg:120,ad:["sauce"]},
+{id:"c1",n:"Veg Hakka Noodles",c:"Chinese",d:"Wok-tossed noodles with crunchy vegetables.",p:180,v:1,r:4.3,pop:0,sp:1,e:"🍜",lg:60,ad:["veg","sauce"]},
+{id:"c2",n:"Veg Manchurian",c:"Chinese",d:"Fried manchurians in a tangy garlic-soy sauce.",p:240,v:0,r:4.4,pop:0,sp:1,e:"🥡",lg:80,ad:["sauce","veg"]},
+{id:"f1",n:"Cheese Burst Pizza",c:"Fast Food",d:"Thin crust, mozzarella-filled edge and fresh toppings.",p:299,v:1,r:4.4,pop:1,sp:0,e:"🍕",lg:120,ad:["cheese","topping","veg"]},
+{id:"f2",n:"Grilled Burger",c:"Fast Food",d:"Juicy grilled patty, lettuce and house sauce.",p:199,v:0,r:4.2,pop:0,sp:0,e:"🍔",ad:["cheese","sauce"]},
+{id:"b1",n:"Paneer Biryani",c:"Rice & Biryani",d:"Fragrant basmati layered with spiced paneer, served with raita.",p:260,v:1,r:4.7,pop:1,sp:1,e:"🍚",lg:90,ad:["raita","paneer"]},
+{id:"b2",n:"Paneer Dum Biryani",c:"Rice & Biryani",d:"Slow-cooked on dum with saffron and fried onions.",p:300,v:0,r:4.8,pop:1,sp:1,e:"🥘",lg:100,ad:["raita"]},
+{id:"r1",n:"Butter Naan",c:"Breads",d:"Soft tandoor-baked naan brushed with butter.",p:55,v:1,r:4.5,pop:0,sp:0,e:"🫓",ad:["cheese"]},
+{id:"r2",n:"Garlic Roti",c:"Breads",d:"Whole-wheat roti with roasted garlic.",p:40,v:1,r:4.2,pop:0,sp:0,e:"🫓",ad:[]},
+{id:"d1",n:"Gulab Jamun",c:"Desserts",d:"Two warm milk dumplings in cardamom syrup.",p:90,v:1,r:4.6,pop:0,sp:0,e:"🍮",ad:[]},
+{id:"d2",n:"Rasmalai",c:"Desserts",d:"Soft cottage-cheese discs in saffron milk.",p:110,v:1,r:4.7,pop:0,sp:0,e:"🥛",ad:[],oos:1},
+{id:"v1",n:"Sweet Lassi",c:"Beverages",d:"Thick chilled yoghurt drink.",p:80,v:1,r:4.4,pop:0,sp:0,e:"🥤",lg:30,ad:[]},
+{id:"v2",n:"Masala Chai",c:"Beverages",d:"Ginger-cardamom tea brewed with fresh milk.",p:40,v:1,r:4.3,pop:0,sp:0,e:"☕",ad:[]}];
+
+/* ============ 3. HELPERS ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const inr=n=>"₹"+Number(n).toLocaleString("en-IN"), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const byId=id=>MENU.find(m=>m.id===id);
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2200)}
+const mins=t=>{const[h,m]=t.split(":");return h*60+ +m}, ampm=t=>{let[h,m]=t.split(":");h=+h;return(h%12||12)+":"+m+(h<12?" AM":" PM")};
+function status(){const n=new Date(),x=n.getHours()*60+n.getMinutes(),o=x>=mins(CONFIG.open)&&x<mins(CONFIG.close);
+  return{open:o,next:o?"":(x<mins(CONFIG.open)?"today":"tomorrow")+" at "+ampm(CONFIG.open)}}
+
+/* ============ 4. CART (saved in localStorage) ============ */
+let cart=[];try{cart=JSON.parse(localStorage.getItem("cart")||"[]").filter(c=>byId(c.id))}catch(e){}
+let coupon=null;
+const save=()=>{try{localStorage.setItem("cart",JSON.stringify(cart))}catch(e){}};
+const unit=c=>{const m=byId(c.id);return m.p+(c.size==="Large"?m.lg||0:0)+c.addons.reduce((s,a)=>s+ADDONS[a][1],0)};
+const addonCost=c=>unit(c)-byId(c.id).p-(c.size==="Large"?byId(c.id).lg||0:0);
+function calc(type){const sub=cart.reduce((s,c)=>s+unit(c)*c.qty,0);let disc=0;
+  if(coupon){const k=CONFIG.coupons[coupon];disc=k.flat?k.flat:Math.min(Math.round(sub*k.pct/100),k.max||1e9);disc=Math.min(disc,sub)}
+  const tax=Math.round((sub-disc)*CONFIG.taxRate),del=type==="Delivery"&&sub>0&&sub<CONFIG.freeDeliveryAbove?CONFIG.deliveryCharge:0;
+  return{sub,disc,tax,del,total:sub-disc+tax+del}}
+function addToCart(item){const key=JSON.stringify([item.id,item.spice,item.size,[...item.addons].sort(),item.note]);
+  const f=cart.find(c=>c.key===key);if(f)f.qty+=item.qty;else cart.push({...item,key});save();renderCart();bump()}
+function bump(){const b=$("#cnt");b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}
+function renderCart(){const n=cart.reduce((s,c)=>s+c.qty,0);$("#cnt").textContent=n;
+  if(coupon&&calc().sub<(CONFIG.coupons[coupon].min||0)){coupon=null;toast("Coupon removed: minimum order no longer met")}
+  const L=$("#cl"),F=$("#cf");
+  if(!cart.length){L.innerHTML='<div style="padding:40px 20px;text-align:center"><div style="font-size:3rem">🛒</div><p>Your cart is empty. Add something delicious!</p><button class="btn" onclick="closeCart();location.hash=\'#menu\'">Explore Menu</button></div>';F.innerHTML="";renderCheckoutIfOpen();return}
+  L.innerHTML=cart.map((c,i)=>{const m=byId(c.id);const o=[c.size,m.sp?c.spice:"",...c.addons.map(a=>ADDONS[a][0])].filter(Boolean).join(", ");
+    return`<div class="ci"><div class="pic">${m.e}</div><div><b>${esc(m.n)}</b><div class="small">${esc(o)}${c.note?"<br>Note: "+esc(c.note):""}</div>
+    <div class="small">${inr(m.p)}${addonCost(c)||c.size==="Large"?" + "+inr(unit(c)-m.p)+" extras":""}</div>
+    <div class="row" style="justify-content:flex-start;margin-top:4px"><span class="qty"><button aria-label="Decrease" onclick="chg(${i},-1)">−</button><span>${c.qty}</span><button aria-label="Increase" onclick="chg(${i},1)">+</button></span><button class="lk" onclick="editItem(${i})">Edit</button><button class="lk" onclick="chg(${i},-99)">Remove</button></div></div><b>${inr(unit(c)*c.qty)}</b></div>`}).join("");
+  const t=calc("");F.innerHTML=`<div class="tot"><span>Subtotal</span><b>${inr(t.sub)}</b></div><div class="small">Tax and delivery are added at checkout.</div>
+  <div class="row" style="margin:10px 0"><button class="lk" onclick="clearCart()">Clear cart</button><button class="btn" onclick="goCheckout()">Checkout</button></div>`;renderCheckoutIfOpen()}
+function chg(i,d){cart[i].qty+=d;if(cart[i].qty<1)cart.splice(i,1);save();renderCart()}
+function clearCart(){if(confirm("Remove everything from your cart?")){cart=[];coupon=null;save();renderCart()}}
+const openCart=()=>{$("#drawer").classList.add("on");$("#fx").classList.add("on")}, closeCart=()=>{$("#drawer").classList.remove("on");$("#fx").classList.remove("on")};
+function goCheckout(){closeCart();location.hash="#checkout"}
+
+/* ============ 5. MENU RENDER + FILTERS ============ */
+const F={q:"",cat:"",sort:"",diet:"",sp:false,po:false};
+const card=m=>`<article class="card" tabindex="0" role="button" aria-label="Customise ${esc(m.n)}" onclick="openDish('${m.id}')" onkeydown="if(event.key==='Enter')openDish('${m.id}')">
+<div class="pic">${m.img?`<img src="${esc(m.img)}" alt="${esc(m.n)}" loading="lazy">`:`<span role="img" aria-label="${esc(m.n)}">${m.e}</span>`}</div><div class="cb"><div class="row"><b>${esc(m.n)}</b><span class="vd ${m.v?"":"n"}" title="${m.v?"Vegetarian":"Non-vegetarian"}"></span></div>
+<div>${m.pop?'<span class="tag">Popular</span> ':""}${m.sp?'<span class="tag s">🌶 Spicy</span>':""}</div><p>${esc(m.d)}</p>
+<div class="row"><span class="price">${inr(m.p)}</span><span class="star">★ ${m.r}</span></div>
+<button class="btn sm full" ${m.oos?"disabled":""}>${m.oos?"Out of stock":"Add to Cart"}</button></div></article>`;
+function renderMenu(){let l=MENU.filter(m=>(!F.cat||m.c===F.cat)&&(!F.diet||(F.diet==="v")===!!m.v)&&(!F.sp||m.sp)&&(!F.po||m.pop)&&(!F.q||(m.n+" "+m.d+" "+m.c).toLowerCase().includes(F.q)));
+  const so={pa:(a,b)=>a.p-b.p,pd:(a,b)=>b.p-a.p,r:(a,b)=>b.r-a.r,pop:(a,b)=>b.pop-a.pop||b.r-a.r}[F.sort];if(so)l.sort(so);
+  const cats=CATS.filter(c=>l.some(m=>m.c===c));
+  $("#menuBody").innerHTML=cats.length?cats.map(c=>`<h3 id="c-${CATS.indexOf(c)}" style="margin:22px 0 12px;scroll-margin-top:120px">${c}</h3><div class="grid">${l.filter(m=>m.c===c).map(card).join("")}</div>`).join(""):'<div class="box">No dishes match your search. <button class="lk" onclick="clearF()">Clear filters</button></div>';
+  $("#chips").innerHTML=cats.map(c=>`<button class="chip" onclick="document.getElementById('c-${CATS.indexOf(c)}').scrollIntoView()">${c}</button>`).join("")}
+function clearF(){Object.assign(F,{q:"",cat:"",sort:"",diet:"",sp:false,po:false});$("#q").value="";$("#cat").value="";$("#sort").value="";$("#diet").value="";["#fsp","#fpo"].forEach(s=>{$(s).classList.remove("on");$(s).setAttribute("aria-pressed","false")});renderMenu()}
+
+/* ============ 6. DISH CUSTOMISATION MODAL ============ */
+function openDish(id,editIdx){const m=byId(id);if(m.oos)return toast(m.n+" is out of stock");
+  const e=editIdx!=null?cart[editIdx]:{qty:1,spice:"Medium",size:"Regular",addons:[],note:""};const dlg=$("#dlg");
+  dlg.innerHTML=`<div class="pic" style="height:90px;font-size:3rem">${m.e}</div><div class="mb"><div><h3>${esc(m.n)}</h3><p class="small" style="margin:4px 0 0">${esc(m.d)}</p></div>
+  ${m.sp?`<div><label>Spice level</label><div class="opt">${SPICE.map(s=>`<label><input type="radio" name="sp" value="${s}" ${e.spice===s?"checked":""}>${s}</label>`).join("")}</div></div>`:""}
+  ${m.lg?`<div><label>Portion size</label><div class="opt"><label><input type="radio" name="sz" value="Regular" ${e.size!=="Large"?"checked":""}>Regular</label><label><input type="radio" name="sz" value="Large" ${e.size==="Large"?"checked":""}>Large (+${inr(m.lg)})</label></div></div>`:""}
+  ${m.ad.length?`<div><label>Add-ons</label><div class="opt">${m.ad.map(a=>`<label><input type="checkbox" name="ad" value="${a}" ${e.addons.includes(a)?"checked":""}>${ADDONS[a][0]} (+${inr(ADDONS[a][1])})</label>`).join("")}</div></div>`:""}
+  <div><label for="nt">Special instructions</label><textarea id="nt" rows="2" maxlength="150" placeholder="e.g. No onions, no garlic, extra crispy, Jain preparation">${esc(e.note)}</textarea></div>
+  <div class="row"><span class="qty"><button type="button" aria-label="Decrease" id="dm">−</button><span id="dq">${e.qty}</span><button type="button" aria-label="Increase" id="dp">+</button></span><div style="text-align:right"><div class="small" id="brk"></div><b id="fin" style="font-size:1.2rem"></b></div></div>
+  <div class="row"><button class="btn alt" id="dc">Cancel</button><button class="btn" id="da" style="flex:1">${editIdx!=null?"Update item":"Add to Cart"}</button></div></div>`;
+  let q=e.qty;const get=()=>({id,qty:q,spice:m.sp?(dlg.querySelector('[name=sp]:checked')||{}).value:"",size:m.lg?dlg.querySelector('[name=sz]:checked').value:"Regular",addons:[...dlg.querySelectorAll('[name=ad]:checked')].map(x=>x.value),note:$("#nt").value.trim().slice(0,150)});
+  const upd=()=>{const g=get(),u=unit(g);$("#dq").textContent=q;$("#brk").textContent=`Item ${inr(m.p)} + extras ${inr(u-m.p)} = ${inr(u)} each`;$("#fin").textContent=inr(u*q)};
+  dlg.oninput=upd;$("#dm").onclick=()=>{q=Math.max(1,q-1);upd()};$("#dp").onclick=()=>{q=Math.min(20,q+1);upd()};$("#dc").onclick=()=>dlg.close();
+  $("#da").onclick=()=>{const g=get();if(editIdx!=null){cart.splice(editIdx,1);cart.splice(editIdx,0,{...g,key:""+Math.random()});save();renderCart()}else{addToCart(g);toast(m.n+" added to cart")}dlg.close()};
+  upd();dlg.showModal()}
+const editItem=i=>{closeCart();openDish(cart[i].id,i)};
+$("#dlg").addEventListener("click",e=>{if(e.target.id==="dlg")e.target.close()});
+
+/* ============ 7. CHECKOUT ============ */
+let order={type:"Delivery",pay:"Cash on Delivery"};
+function renderCheckoutIfOpen(){if(location.hash==="#checkout")renderCheckout()}
+function renderCheckout(){const body=$("#coBody"),s=status();
+  if(!cart.length){body.innerHTML='<div class="box" style="text-align:center"><p>Your cart is empty. Add something delicious!</p><a class="btn" href="#menu">Explore Menu</a></div>';return}
+  const keep=id=>($("#"+id)||{}).value||"";const old={nm:keep("nm"),ph:keep("ph"),em:keep("em"),h:keep("h"),bl:keep("bl"),st:keep("st"),lm:keep("lm"),ct:keep("city")||"Thane
+  ",pc:keep("pc"),tb:keep("tb"),cp:keep("cp")};
+  const t=calc(order.type),isD=order.type==="Delivery";
+  const pays=isD?["Cash on Delivery"]:["Pay at Restaurant"];order.pay=pays[0];
+  body.innerHTML=`${s.open?"":`<div class="alert"><b>Currently closed.</b> We reopen ${s.next}. You can build your cart but can't place an order right now.</div>`}
+  <div class="co"><div><form id="cf2" class="box" novalidate><div class="fgrid">
+  <div class="full"><label>Order type</label><div class="opt">${["Delivery","Takeaway","Dine-in"].map(o=>`<label><input type="radio" name="ot" value="${o}" ${order.type===o?"checked":""}>${o}</label>`).join("")}</div></div>
+  <div><label for="nm">Full name *</label><input id="nm" autocomplete="name" value="${esc(old.nm)}"><div class="err" id="e-nm"></div></div>
+  <div><label for="ph">Mobile number *</label><input id="ph" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10-digit number" value="${esc(old.ph)}"><div class="err" id="e-ph"></div></div>
+  <div class="full"><label for="em">Email (optional)</label><input id="em" type="email" autocomplete="email" value="${esc(old.em)}"><div class="err" id="e-em"></div></div>
+  ${isD?`<div><label for="h">House / Flat no. *</label><input id="h" value="${esc(old.h)}"><div class="err" id="e-h"></div></div><div><label for="bl">Building / Apartment *</label><input id="bl" value="${esc(old.bl)}"><div class="err" id="e-bl"></div></div>
+  <div class="full"><label for="st">Street / Area *</label><input id="st" value="${esc(old.st)}"><div class="err" id="e-st"></div></div><div><label for="lm">Landmark</label><input id="lm" value="${esc(old.lm)}"></div><div><label for="city">City *</label><input id="city" value="${esc(old.ct)}"><div class="err" id="e-city"></div></div>
+  <div><label for="pc">Pincode *</label><input id="pc" inputmode="numeric" maxlength="6" value="${esc(old.pc)}"><div class="err" id="e-pc"></div></div><div class="full small">Estimated delivery: ${CONFIG.eta.Delivery}. Minimum order ${inr(CONFIG.minDelivery)}. Delivery ${inr(CONFIG.deliveryCharge)}, free above ${inr(CONFIG.freeDeliveryAbove)}.</div>`
+  :order.type==="Takeaway"?`<div class="full box small">Pick up from <b>${esc(CONFIG.address)}</b>. Ready in about ${CONFIG.eta.Takeaway}. We'll hold it at the counter under your name.</div>`
+  :`<div><label for="tb">Table number (optional)</label><input id="tb" maxlength="6" value="${esc(old.tb)}"></div><div class="small">Estimated time: ${CONFIG.eta["Dine-in"]}.</div>`}
+  <div class="full"><label>Payment</label><div class="opt">${pays.map(p=>`<label><input type="radio" name="pay" checked>${p}</label>`).join("")}<label style="opacity:.55"><input type="radio" disabled>Online payment (unavailable)</label></div><div class="small">Online payment isn't enabled yet. Pay when your order arrives or at the restaurant.</div></div>
+  </div></form></div>
+  <aside class="box"><h3>Order summary</h3>${cart.map(c=>`<div class="row small" style="margin:6px 0"><span>${c.qty} × ${esc(byId(c.id).n)}</span><span>${inr(unit(c)*c.qty)}</span></div>`).join("")}
+  <div class="row" style="margin:10px 0"><input id="cp" placeholder="Coupon code" aria-label="Coupon code" value="${esc(coupon||old.cp)}" style="text-transform:uppercase"><button class="btn alt sm" type="button" id="ap">Apply</button></div><div class="err" id="e-cp"></div>
+  <div class="tot"><span>Subtotal</span><span>${inr(t.sub)}</span></div>${t.disc?`<div class="tot" style="color:var(--ok)"><span>Discount (${coupon})</span><span>−${inr(t.disc)}</span></div>`:""}
+  <div class="tot"><span>Tax (${Math.round(CONFIG.taxRate*100)}%)</span><span>${inr(t.tax)}</span></div><div class="tot"><span>Delivery</span><span>${isD?(t.del?inr(t.del):"Free"):"—"}</span></div>
+  <div class="tot g"><span>Total</span><span>${inr(t.total)}</span></div>
+  <div id="subErr" class="alert" role="alert" hidden></div><button class="btn gold full" id="place" style="margin-top:12px" ${s.open?"":"disabled"}>${s.open?"Place Order":"Restaurant closed"}</button></aside></div>`;
+  $$('[name=ot]').forEach(r=>r.onchange=()=>{order.type=r.value;renderCheckout()});
+  $("#ap").onclick=applyCoupon;$("#place").onclick=placeOrder}
+function applyCoupon(){const c=$("#cp").value.trim().toUpperCase(),k=CONFIG.coupons[c],er=$("#e-cp"),sub=calc("").sub;
+  if(!c){coupon=null;return renderCheckout()}
+  if(!k){er.textContent="That coupon code isn't valid.";return}
+  if(sub<(k.min||0)){er.textContent=`${c} needs a minimum order of ${inr(k.min)}.`;return}
+  let used=[];try{used=JSON.parse(localStorage.getItem("usedCoupons")||"[]")}catch(e){}
+  if(c==="FIRSTORDER"&&used.includes(c)){er.textContent="FIRSTORDER was already used on this device.";return}
+  coupon=c;renderCheckout();toast("Coupon applied")}
+function validate(){const v=id=>($("#"+id)?$("#"+id).value.trim():""),E={},D=order.type==="Delivery";
+  if(v("nm").length<2)E.nm="Enter your full name.";if(!/^[6-9]\d{9}$/.test(v("ph")))E.ph="Enter a valid 10-digit Indian mobile number.";
+  if(v("em")&&!/^\S+@\S+\.\S+$/.test(v("em")))E.em="Enter a valid email or leave it blank.";
+  if(D){[["h","House / Flat number"],["bl","Building / Apartment"],["st","Street / Area"],["city","City"]].forEach(([k,l])=>{if(!v(k))E[k]=l+" is required."});if(!/^\d{6}$/.test(v("pc")))E.pc="Enter a valid 6-digit pincode."}
+  $$(".err").forEach(e=>{if(!e.id.startsWith("e-cp"))e.textContent=""});$$("input").forEach(i=>i.classList.remove("bad"));
+  for(const k in E){$("#e-"+k).textContent=E[k];$("#"+k).classList.add("bad")}
+  const t=calc(order.type);let top=Object.keys(E)[0];
+  if(!cart.length)return"Your cart is empty.";if(D&&t.sub<CONFIG.minDelivery)return`Delivery needs a minimum order of ${inr(CONFIG.minDelivery)}.`;
+  if(top){$("#"+top).focus();return"Please fix the highlighted fields."}return""}
+let reqId=null,busy=false;
+async function placeOrder(){const er=$("#subErr");er.hidden=true;if(busy)return;
+  const show=m=>{er.textContent=m;er.hidden=false;er.scrollIntoView({block:"center",behavior:"smooth"});toast(m.slice(0,60))};
+  if(!status().open){show("The restaurant is closed right now.");return}
+  const msg=validate();if(msg){show(msg);return}
+  if(!GOOGLE_APPS_SCRIPT_URL||GOOGLE_APPS_SCRIPT_URL.startsWith("PASTE")){show("Ordering isn't set up yet: the Google Apps Script URL is missing. Your cart is safe.");return}
+  const v=id=>($("#"+id)?$("#"+id).value.trim():""),D=order.type==="Delivery";
+  const addr=D?[v("h"),v("bl"),v("st"),v("lm"),v("city"),v("pc")].filter(Boolean).join(", "):"";
+  reqId=reqId||"R"+Date.now()+Math.random().toString(36).slice(2,8); // same id on retry => no duplicate rows
+  const payload={requestId:reqId,customer:{name:v("nm"),phone:v("ph"),email:v("em")},type:order.type,address:addr,table:v("tb"),payment:order.pay,coupon:coupon||"",
+    items:cart.map(c=>({id:c.id,qty:c.qty,spice:c.spice,size:c.size,addons:c.addons,note:c.note}))};
+  busy=true;const b=$("#place");b.disabled=true;b.textContent="Placing your order…";
+  try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),20000);
+    const r=await fetch(GOOGLE_APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),signal:ctl.signal});clearTimeout(to);
+    const d=await r.json();if(!d.success)throw new Error(d.message||"Rejected");
+    const rec={orderId:d.orderId,name:payload.customer.name,type:order.type,pay:order.pay,address:addr,table:payload.table,t:d.totals,
+      items:cart.map(c=>({n:byId(c.id).n,qty:c.qty,o:[c.size,byId(c.id).sp?c.spice:"",...c.addons.map(a=>ADDONS[a][0])].filter(Boolean).join(", "),note:c.note,line:unit(c)*c.qty}))};
+    try{localStorage.setItem("lastOrder",JSON.stringify(rec));localStorage.setItem("lastOrderId",d.orderId);if(coupon==="FIRSTORDER"){const u=JSON.parse(localStorage.getItem("usedCoupons")||"[]");u.push("FIRSTORDER");localStorage.setItem("usedCoupons",JSON.stringify(u))}}catch(e){}
+    cart=[];coupon=null;reqId=null;save();renderCart();location.hash="#done"}
+  catch(err){show((err.name==="AbortError"||err instanceof TypeError?"We couldn't reach the restaurant. Check your connection and try again.":"We couldn't submit your order right now. Please try again.")+" Your cart is saved.")}
+  finally{busy=false;const b2=$("#place");if(b2){b2.disabled=false;b2.textContent="Place Order"}}}
+
+/* ============ 8. CONFIRMATION + TRACKING ============ */
+function renderDone(){let r;try{r=JSON.parse(localStorage.getItem("lastOrder"))}catch(e){}
+  if(!r){$("#doneBody").innerHTML='<div class="box">No recent order found. <a href="#menu">Browse the menu</a></div>';return}
+  const t=r.t;$("#doneBody").innerHTML=`<div class="box" style="text-align:center"><div style="font-size:3rem">✅</div><h2>Order Confirmed!</h2><p>Thank you, ${esc(r.name)}.</p><h3 style="color:var(--g)">Order #${esc(r.orderId)}</h3></div>
+  <div class="box" style="margin-top:14px">${r.items.map(i=>`<div class="row" style="align-items:flex-start;margin-bottom:8px"><div><b>${i.qty} × ${esc(i.n)}</b><div class="small">${esc(i.o)}${i.note?"<br>Note: "+esc(i.note):""}</div></div><b>${inr(i.line)}</b></div>`).join("")}
+  <div class="tot"><span>Subtotal</span><span>${inr(t.sub)}</span></div><div class="tot"><span>Discount</span><span>−${inr(t.disc)}</span></div><div class="tot"><span>Tax</span><span>${inr(t.tax)}</span></div><div class="tot"><span>Delivery</span><span>${inr(t.del)}</span></div><div class="tot g"><span>Grand total</span><span>${inr(t.total)}</span></div></div>
+  <div class="box" style="margin-top:14px"><p><b>${r.type}</b> · ${esc(r.pay)}</p>${r.address?`<p>Deliver to: ${esc(r.address)}</p>`:""}${r.table?`<p>Table: ${esc(r.table)}</p>`:""}<p>Estimated time: <b>${CONFIG.eta[r.type]}</b></p></div>
+  <div class="cta"><a class="btn" href="#track">Track Order</a><a class="btn alt" href="#menu">Continue Shopping</a><a class="btn alt" href="tel:${CONFIG.phone.replace(/\s/g,"")}">Contact Restaurant</a></div>`}
+const FLOW={Delivery:[["New","Order Received"],["Confirmed","Confirmed"],["Preparing","Preparing"],["Ready","Ready"],["Out for Delivery","Out for Delivery"],["Delivered","Delivered"]],
+  Takeaway:[["New","Order Received"],["Confirmed","Confirmed"],["Preparing","Preparing"],["Ready","Ready for Pickup"],["Delivered","Picked Up"]],
+  "Dine-in":[["New","Order Received"],["Confirmed","Confirmed"],["Preparing","Preparing"],["Delivered","Served"]]};
+let tTimer;
+async function track(id){clearTimeout(tTimer);const b=$("#tbody");id=(id||"").trim().toUpperCase();if(!id){b.innerHTML='<p class="alert">Enter your Order ID.</p>';return}
+  if(GOOGLE_APPS_SCRIPT_URL.startsWith("PASTE")){b.innerHTML='<p class="alert">Tracking isn\'t set up yet.</p>';return}
+  if(!b.querySelector(".steps"))b.innerHTML="<p>Checking status…</p>";
+  try{const r=await fetch(GOOGLE_APPS_SCRIPT_URL+"?orderId="+encodeURIComponent(id)),d=await r.json();if(!d.success)throw new Error(d.message);
+    const flow=FLOW[d.type]||FLOW.Delivery;let idx=flow.findIndex(s=>s[0]===d.status);if(idx<0&&d.status==="Ready")idx=flow.findIndex(s=>s[0]==="Preparing");
+    b.innerHTML=d.status==="Cancelled"?`<div class="alert"><b>Order #${esc(id)} was cancelled.</b> Please call the restaurant if this is unexpected.</div>`:
+    `<h3 style="margin-top:18px">Order #${esc(id)}</h3><div class="steps">${flow.map((s,i)=>`<div class="step ${i<=idx?"d":""} ${i===idx?"now":""}">${s[1]}</div>`).join("")}</div><p>Current status: <b>${esc(flow[Math.max(idx,0)][1])}</b>. This page refreshes automatically.</p>`;
+    if(d.status!=="Delivered"&&d.status!=="Cancelled")tTimer=setTimeout(()=>track(id),15000)}
+  catch(e){b.innerHTML='<p class="alert">We couldn\'t find that order or reach the restaurant. Check the ID and try again.</p>'}}
+
+/* ============ 9. ROUTER + PAGE INIT ============ */
+function route(){const h=location.hash;clearTimeout(tTimer);const map={"#checkout":"checkout","#done":"done","#track":"track"},v=map[h]||"main";
+  $$(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));$("#links").classList.remove("on");
+  if(v==="checkout")renderCheckout();if(v==="done")renderDone();
+  if(v==="track"){let id="";try{id=localStorage.getItem("lastOrderId")||""}catch(e){}$("#tid").value=$("#tid").value||id;if($("#tid").value)track($("#tid").value)}
+  if(v!=="main")scrollTo(0,0);else if(h&&h.length>1&&$(h))setTimeout(()=>$(h).scrollIntoView(),30)}
+function init(){const C=CONFIG;document.title=C.name+" · Order food online";$$(".cfg-name").forEach(e=>e.textContent=C.name);$("#logo").textContent=C.name;$("#yr").textContent=new Date().getFullYear();
+  const s=status();$("#info").innerHTML=`<div class="box"><span class="st ${s.open?"o":"c"}">${s.open?"Open Now":"Currently Closed"}</span><p class="small" style="margin:6px 0 0">${s.open?"Taking orders until "+ampm(C.close):"Reopens "+s.next}</p></div>
+  <div class="box"><b>Hours</b>${ampm(C.open)} – ${ampm(C.close)}</div><div class="box"><b>Phone</b><a href="tel:${C.phone.replace(/\s/g,"")}">${C.phone}</a></div><div class="box"><b>Address</b>${esc(C.address)} <a href="${C.maps}" target="_blank" rel="noopener">Map</a></div>`;
+  $("#feat").innerHTML=MENU.filter(m=>m.pop).slice(0,4).map(card).join("");
+  const avg=(C.reviews.reduce((a,r)=>a+r[1],0)/C.reviews.length).toFixed(1);$("#avg").textContent=`★ ${avg} average from ${C.reviews.length} recent reviews`;
+  $("#car").innerHTML=C.reviews.map(r=>`<div class="box rv"><div class="row" style="justify-content:flex-start;gap:10px"><div class="av">${r[0][0]}</div><div><b>${esc(r[0])}</b><div class="star" aria-label="${r[1]} out of 5">${"★".repeat(r[1])}${"☆".repeat(5-r[1])}</div></div></div><p>${esc(r[2])}</p></div>`).join("");
+  $("#rp").onclick=()=>$("#car").scrollBy({left:-330,behavior:"smooth"});$("#rn").onclick=()=>$("#car").scrollBy({left:330,behavior:"smooth"});
+  $("#story").textContent=C.story;$("#facts").innerHTML=C.facts.map(f=>`<div class="box"><h3>${f[0]}</h3><span class="small">${f[1]}</span></div>`).join("");
+  $("#ct").innerHTML=`<p>${esc(C.address)}</p><p><a href="tel:${C.phone.replace(/\s/g,"")}">${C.phone}</a><br><a href="mailto:${C.email}">${C.email}</a></p>`;$("#hrs").textContent=`Every day, ${ampm(C.open)} – ${ampm(C.close)}`;$("#mapB").href=C.maps;$("#callB").href="tel:"+C.phone.replace(/\s/g,"");
+  $("#cat").innerHTML='<option value="">All categories</option>'+CATS.map(c=>`<option>${c}</option>`).join("");
+  $("#q").oninput=e=>{F.q=e.target.value.trim().toLowerCase();renderMenu()};
+  ["cat","sort","diet"].forEach(k=>$("#"+k).onchange=e=>{F[k]=e.target.value;renderMenu()});
+  [["#fsp","sp"],["#fpo","po"]].forEach(([s,k])=>$(s).onclick=e=>{F[k]=!F[k];e.currentTarget.classList.toggle("on",F[k]);e.currentTarget.setAttribute("aria-pressed",F[k]);renderMenu()});
+  $("#clr").onclick=clearF;$("#cartBtn").onclick=openCart;$("#cx").onclick=closeCart;$("#fx").onclick=closeCart;
+  $("#burger").onclick=e=>{const o=$("#links").classList.toggle("on");e.currentTarget.setAttribute("aria-expanded",o)};
+  $("#tgo").onclick=()=>track($("#tid").value);$("#tid").onkeydown=e=>{if(e.key==="Enter")track(e.target.value)};
+  window.addEventListener("hashchange",route);renderMenu();renderCart();route()}
+document.addEventListener("click",e=>{const c=e.target.closest(".card");if(c&&e.target.tagName==="BUTTON"){e.stopPropagation()}});
+init();
+</script></body></html>
